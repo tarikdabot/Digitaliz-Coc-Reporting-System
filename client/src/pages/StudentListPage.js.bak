@@ -1,0 +1,190 @@
+import React, { useEffect, useState } from 'react';
+import { useCandidates } from '../context/CandidatesContext';
+import StatusBadge from '../components/StatusBadge';
+import ConfirmModal from '../components/ConfirmModal';
+import CandidateModal from '../components/CandidateModal';
+import { showToast } from '../utils/toast';
+import { exportCandidates } from '../utils/excelExport';
+
+const TH = { background: '#f8fafc', paddingf0', textAlign: 'left', whiteSpace: 'nowrap' };
+const TD = { padding: '12px 16px', fontSize: 14, borderBottom: '1px solid #e2e8f0' };
+
+export default function StudentListPage() {
+  const { candidates, fetchCandidates, updateStatus, bulkUpdateStatus, deleteCandidate } = useCandidates();
+  const [selected,   setSelected]   = useState(new Set());
+  const [bulkStatus, setBulkStatus] = useState('');
+  const [deleteId,   setDeleteId]   = useState(null);
+  const [viewId,     setViewId]     = useState(null);
+t [editId,     setEditId]     = useState(null);
+
+  useEffect(() => { fetchCandidates(); }, [fetchCandidates]);
+
+  const eligible = candidates.filter(c => ['Registered', 'Assessed', 'NotAssessed'].includes(c.status));
+
+  const toggleOne = (id) => setSelected(p => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const toggleAll = (checked) => setSelected(checked ? new Set(eligible.map(c => c._id)) : new Set());
+
+  const applyBulk = async () => {
+    if (!bulkStatus) { showToast('Select a status first.', 'danger'); return; }
+    if (selected.size === 0) { showToast('Select at least one candidate.', 'danger'); return; }
+    const [status, failType] = bulkStatus.includes('|') ? bulkStatus.split('|') : [bulkStatus, ''];
+    await bulkUpdateStatus([...selected], status, failType);
+    showToast(`${selected.size} candidates updated.`);
+    setSelected(new Set()); setBulkStatus('');
+  };
+
+  const handleInline = async (id, val) => {
+    if (!val) return;
+    const [status, failType] = val.includes('|') ? val.split('|') : [val, ''];
+    await updateStatus(id, status, failType);
+    showToast('Status updated.');
+  };
+
+  const confirmDelete = async () => {
+    await deleteCandidate(deleteId);
+    setDeleteId(null);
+    showToast('Candidate deleted.', 'danger');
+  };
+
+  const allChecked = eligible.length > 0 && eligible.every(c => selected.has(c._id));
+  const someChecked = !allChecked && eligible.some(c => selected.has(c._id));
+
+  return (
+    <div style={{1px solid #e2e8f0', padding: 24 }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <h3 style={{ fontSize: 18, fontWeight: 600 }}>All Registered &amp; Assessed Students</h3>
+        <button onClick={() => exportCandidates(candidates)}
+          style={{ background: '#10b981', color: '#fff', border: 'none', paddiems: 'center', gap: 7 }}>
+          <i className="fa-solid fa-file-excel" /> Export Registry
+        </button>
+      </div>
+
+      {/* Bulk toolbar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, padding: '10px 14px', background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 8, flexWrap: 'wrap' }}>
+        <i className="fa-solid fa-circle-info" style={{ color: '#0284c7' }} />
+        <span style={{ fontSize: 13, fontWeight: 600, color>{selected.size} selected</span>
+        <span style={{ color: '#bae6fd' }}>|</span>
+        <label style={{ fontSize: 13, color: '#334155', fontWeight: 500 }}>Bulk change to:</label>
+        <select value={bulkStatus} onChange={e => setBulkStatus(e.target.value)}
+          style={{ padding: '6px 10px', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 13, background: '#fff', cursor: 'pointer' }}>
+          <option value="">— Select status —</option>
+          <option value="Registered">Registered</opion>
+          <option value="Assessed">Assessed (pending result)</option>
+          <option value="NotAssessed">Not Assessed</option>
+          <option value="Competent">Competent ✓</option>
+          <option value="Non-Competent|Only Knowledge">NYC – Knowledge only</option>
+          <option value="Non-Competent|Only Practice">NYC – Practice only</option>
+          <option value="Non-Competent|Both">NYC – Both sections</option>
+        </select>
+        <button onClick={applyBulk}
+          style={{ padding: '6px 14px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+          <i className="fa-solid fa-check" /> Apply
+        </button>
+        <button onClick={() => setSelected(new Set())}
+          style={{ padding: '6px 10px', background: '#94a3b8', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, cursor: 'pointer' }}>
+          <i className="fa-solid fa-xmark" /> Clear
+        </button>
+        <span sty 12, color: '#64748b' }}>— or use the inline dropdown per row</span>
+      </div>
+
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th style={{ ...TH, width: 50, textAlign: 'center' }}>
+                <input type="checkbox" checked={allChecked} ref={el => el && (el.indeterminate = someChecked)}
+                  onChange={e => toggleAll(e.target.checked)}
+                  style={{ accentColor: '#2563eb', width: 14, height: 14, cursor: 'pointer' }} />
+              </th>
+              {['#', 'Full Name', 'Sex', 'Department', 'Current Status', 'Set Status', 'Actions'].map(h => (
+                <th key={h} style={TH}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {candidates.length === 0 ? (
+              <tr><td colSpan={8} style={{ ...TD, textAlign: 'center', color: '#64748b', padding: 28 }}>No candidates registered yet.</td></tr>
+            ) : candida.map((c, idx) => {
+              const locked = ['Competent', 'Non-Competent'].includes(c.status);
+              const isSel  = selected.has(c._id);
+              const name   = c.name || [c.firstName, c.middleName, c.lastName].filter(Boolean).join(' ');
+              return (
+                <tr key={c._id} style={{ background: isSel ? '#eff6ff' : 'transparent', transition: 'background .1s' }}>
+                  {/* Checkbox */}
+                  <td style={{ ...TD, textAlign: 'center' }}>
+                    {locked
+                      ? <span style={{ fontSize: 12, color: '#94a3b8' }}>{idx + 1}</span>
+                      : <label style={{ display: 'inline-flex', alignItems: 'center', gap: 5, cursor: 'pointer' }}>
+                          <input type="checkbox" checked={isSel} onChange={() => toggleOne(c._id)}
+                            style={{ accentColor: '#2563eb', width: 14, height: 14, cursor: 'pointer' }} />
+                     
+                        </label>
+                    }
+                  </td>
+                  <td style={{ ...TD, fontWeight: 600 }}>{idx + 1}</td>
+                  <td style={{ ...TD, fontWeight: 600, minWidth: 160 }}>{name}</td>
+                  <td style={TD}>{c.sex}</td>
+                  <td style={{ ...TD, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={c.dept}>{c.dept}</td>
+                  <td style={TD}><StatusBadge status={c.status} /></td>
+
+                  {/* Inline status change — same as Assessed List */}
+                  <td style={TD}>
+                    <select
+                      key={c.status} /* reset on external change */
+                      defaultValue=""
+                      onChange={e => { handleInline(c._id, e.target.value); e.target.value = ''; }}
+                      style={{
+                        padding: '5px 8px', border: '1px solid #e2e8f0', borderRadius: 6,
+                        fontSize: 12, cursor: 'pointer', background: '#fff',
+                        color: '#334155', minWidth: 140,
+                      }}>
+                      <option value="">— Change status —</option>
+!deleteId} danger
+        title="Confirm Deletion"
+        message="Permanently delete this candidate? This cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
+      />
+      {viewId && <CandidateModal id={viewId} mode="view" onClose={() => setViewId(null)} onEdit={id => { setViewId(null); setEditId(id); }} />}
+      {editId && <CandidateModal id={editId} mode="edit" onClose={() => setEditId(null)} />}
+    </div>
+  );
+}
+                  <button onClick={() => setDeleteId(c._id)} title="Delete"
+                        style={{ padding: '5px 9px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>
+                        <i className="fa-solid fa-trash" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <ConfirmModal
+        isOpen={!a', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>
+                        <i className="fa-solid fa-eye" />
+                      </button>
+                      <button onClick={() => setEditId(c._id)} title="Edit"
+                        style={{ padding: '5px 9px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>
+                        <i className="fa-solid fa-pen-to-square" />
+                      </button>
+    owledge</option>
+                      <option value="Non-Competent|Only Practice">✗ NYC: Practice</option>
+                      <option value="Non-Competent|Both">✗ NYC: Both</option>
+                    </select>
+                  </td>
+
+                  {/* Actions */}
+                  <td style={TD}>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button onClick={() => setViewId(c._id)} title="View"
+                        style={{ padding: '5px 9px', background: '#0f172                      <option value="Registered">Registered</option>
+                      <option value="Assessed">Assessed</option>
+                      <option value="NotAssessed">Not Assessed</option>
+                      <option value="Competent">✓ Competent</option>
+                      <option value="Non-Competent|Only Knowledge">✗ NYC: Kn

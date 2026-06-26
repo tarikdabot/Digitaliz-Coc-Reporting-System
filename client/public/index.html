@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SMS Portal - CoC Reporting System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: 'Inter', sans-serif; background: #f8fafc; }
+      @media print {
+        /* Hide everything by default */
+        body * { visibility: hidden; }
+
+        /* Show only the report canvas and its children */
+        .print-area,
+        .print-area * { visibility: visible; }
+
+        /* Position the report canvas to fill the page */
+        .print-area {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          padding: 20px;
+          background: #fff;
+          border: none !important;
+          box-shadow: none !important;
+          overflow: visible !important;
+        }
+
+        /* Remove any leftover page margins */
+        @page {
+          margin: 12mm;
+          size: A4 landscape;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
