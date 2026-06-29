@@ -8,19 +8,8 @@ dotenv.config();
 
 const app = express();
 
-// CORS — allow localhost in dev, and the deployed frontend in production
-const allowedOrigins = [
-  'http://localhost:3000',
-  process.env.CLIENT_URL, // set this in Render env vars
-].filter(Boolean);
-
-app.use(cors({
-  origin: (origin, cb) => {
-    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
-    cb(new Error('Not allowed by CORS'));
-  },
-  credentials: true,
-}));
+// CORS — allow all origins (handles both local dev and any Render deployment)
+app.use(cors({ origin: true, credentials: true }));
 
 app.use(express.json());
 
