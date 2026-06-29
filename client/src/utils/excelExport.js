@@ -60,23 +60,48 @@ export function exportCandidates(candidates, filename = 'Candidates_Registry') {
 }
 
 /**
- * Download a blank Bulk Registration Excel template with all required headers
- * and one sample row so users know the expected format.
+ * Download a blank Bulk Registration Excel template.
+ * Only First Name, Last Name, and Sex are required — all others are optional.
  */
 export function downloadBulkTemplate() {
   const headers = [
-    'Registration Date', 'First Name', 'Middle Name', 'Last Name', 'Sex', 'Age',
+    'Registration Date', 'First Name *', 'Middle Name', 'Last Name *', 'Sex *', 'Age',
     'Occupation', 'Level', 'Region', 'Zone', 'Wereda', 'Mobile No',
     'Name of Institution', 'Department', 'Institution Ownership', 'Training Program',
     'Employment Status', 'Trainer/Completer Type', 'Enterprise Size', 'Assessment Type',
   ];
 
-  const sample = [{
+  // Row 1: hint row showing what's required
+  const hint = {
+    'Registration Date':     '(optional) YYYY-MM-DD',
+    'First Name *':          '(REQUIRED)',
+    'Middle Name':           '(optional)',
+    'Last Name *':           '(REQUIRED)',
+    'Sex *':                 '(REQUIRED) Male or Female',
+    'Age':                   '(optional) number',
+    'Occupation':            '(optional)',
+    'Level':                 '(optional) e.g. Level III',
+    'Region':                '(optional)',
+    'Zone':                  '(optional)',
+    'Wereda':                '(optional)',
+    'Mobile No':             '(optional)',
+    'Name of Institution':   '(optional) defaults to SHEWA BIRHAN COLLEGE',
+    'Department':            '(optional) defaults to WEB DEVELOPMENT AND DATABASE ADMINSTRATION',
+    'Institution Ownership': '(optional) Government / Private / NGO',
+    'Training Program':      '(optional) Regular / Extension / Distance',
+    'Employment Status':     '(optional) Government / Private Sector / Self Employment / Unemployment',
+    'Trainer/Completer Type':'(optional)',
+    'Enterprise Size':       '(optional)',
+    'Assessment Type':       '(optional) First Time / Re-assessment',
+  };
+
+  // Row 2: sample data
+  const sample = {
     'Registration Date':     new Date().toISOString().slice(0, 10),
-    'First Name':            'ABEBE',
+    'First Name *':          'ABEBE',
     'Middle Name':           'BEKELE',
-    'Last Name':             'CHALA',
-    'Sex':                   'Male',
+    'Last Name *':           'CHALA',
+    'Sex *':                 'Male',
     'Age':                   '25',
     'Occupation':            'Web Developer',
     'Level':                 'Level III',
@@ -92,12 +117,10 @@ export function downloadBulkTemplate() {
     'Trainer/Completer Type':'',
     'Enterprise Size':       '',
     'Assessment Type':       'First Time',
-  }];
+  };
 
-  const ws = XLSX.utils.json_to_sheet(sample, { header: headers });
-
-  // Style header row width
-  ws['!cols'] = headers.map(() => ({ wch: 26 }));
+  const ws = XLSX.utils.json_to_sheet([hint, sample], { header: headers });
+  ws['!cols'] = headers.map(() => ({ wch: 28 }));
 
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Bulk Registration');

@@ -61,12 +61,22 @@ export default function RegistrationPage() {
       try {
         const wb = XLSX.read(evt.target.result, { type: 'binary' });
         const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-        const mapped = rows.map((r, i) => ({
-          firstName:  r['First Name'] || '', middleName: r['Middle Name'] || '', lastName: r['Last Name'] || '',
-          sex:        (String(r['Sex'] || 'Male')).startsWith('F') ? 'Female' : 'Male',
-          age:        r['Age'] || '', occupation: r['Occupation'] || '', occLevel: r['Level'] || '',
-          regDate:    r['Registration Date'] || '', region: r['Region'] || '', zone: r['Zone'] || '',
-          wereda:     r['Wereda'] || '', mobile: r['Mobile No'] || '',
+        const mapped = rows
+          // skip the hint row (first row after header if it contains "(REQUIRED)" or "(optional)")
+          .filter(r => !String(r['First Name *'] || r['First Name'] || '').startsWith('('))
+          .map((r) => ({
+          firstName:  r['First Name *'] || r['First Name'] || '',
+          middleName: r['Middle Name'] || '',
+          lastName:   r['Last Name *']  || r['Last Name']  || '',
+          sex:        (String(r['Sex *'] || r['Sex'] || 'Male')).startsWith('F') ? 'Female' : 'Male',
+          age:        r['Age'] || '',
+          occupation: r['Occupation'] || '',
+          occLevel:   r['Level'] || '',
+          regDate:    r['Registration Date'] || '',
+          region:     r['Region'] || '',
+          zone:       r['Zone']   || '',
+          wereda:     r['Wereda'] || '',
+          mobile:     r['Mobile No'] || '',
           institution:        (r['Name of Institution'] || 'SHEWA BIRHAN COLLEGE').toUpperCase(),
           institutionAddress: r['Address of Institution'] || '',
           dept:       r['Department'] || 'WEB DEVELOPMENT AND DATABASE ADMINSTRATION',
@@ -193,7 +203,8 @@ export default function RegistrationPage() {
           </div>
 
           <p style={{ color: '#64748b', fontSize: 13, marginBottom: 16, lineHeight: 1.6 }}>
-            <strong>Required Headers:</strong> Registration Date | First Name | Middle Name | Last Name | Sex | Age | Occupation | Level | Region | Zone | Wereda | Mobile No | Name of Institution | Department | Institution Ownership | Training Program | Employment Status | Trainer/Completer Type | Enterprise Size | Assessment Type
+            <strong>Required:</strong> <span style={{ color: '#dc2626' }}>First Name, Last Name, Sex</span> &nbsp;·&nbsp;
+            <strong>Optional:</strong> All other columns
           </p>
           <label style={{ border: '2px dashed #cbd5e1', borderRadius: 12, padding: 40, textAlign: 'center', background: '#f8fafc', cursor: 'pointer', display: 'block', transition: 'all .2s' }}
             onMouseOver={(e) => { e.currentTarget.style.borderColor = '#2563eb'; e.currentTarget.style.background = '#eff6ff'; }}
