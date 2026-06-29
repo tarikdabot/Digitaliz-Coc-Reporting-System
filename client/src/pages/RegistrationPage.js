@@ -111,8 +111,9 @@ export default function RegistrationPage() {
         const result = await bulkCreate(mapped);
         showToast(`${result.inserted} candidates imported successfully.`);
         navigate('/students');
-      } catch {
-        showToast('Excel import failed. Check column headers.', 'danger');
+      } catch (err) {
+        const msg = err.response?.data?.message || err.message || 'Unknown error';
+        showToast(`Import failed: ${msg}`, 'danger');
       }
     };
     reader.readAsBinaryString(file);

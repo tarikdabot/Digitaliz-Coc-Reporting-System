@@ -45,12 +45,27 @@ exports.createCandidate = async (req, res) => {
 // POST bulk create
 exports.bulkCreateCandidates = async (req, res) => {
   try {
-    const docs = req.body; // array
+    const docs = req.body;
     if (!Array.isArray(docs) || docs.length === 0)
       return res.status(400).json({ message: 'Provide an array of candidates' });
-    const result = await Candidate.insertMany(docs, { ordered: false });
+
+    // Ensure required fields have fallbacks
+    const sanitized = docs.map(d => ({
+      ...d,
+      firstName: (d.firstName || '').toString().trim() || 'UNKNOWN',
+      lastName:  (d.lastName  || '').toString().trim() || '',
+      sex:       ['Male','Female'].includes(d.sex) ? d.sex : 'Male',
+      dept:      d.dept || 'WEB DEVELOPMENT AND DATABASE ADMINSTRATION',
+      status:    d.status || 'Registered',
+    }));
+
+    const result = await Candidate.insertMany(sanitized, { ordered: false });
     res.status(201).json({ inserted: result.length, data: result });
   } catch (err) {
+    // insertMany with ordered:false may partially succeed
+    if (err.insertedDocs && err.insertedDocs.length > 0) {
+      return res.status(201).json({ inserted: err.insertedDocs.length, data: err.insertedDocs });
+    }
     res.status(400).json({ message: err.message });
   }
 };
