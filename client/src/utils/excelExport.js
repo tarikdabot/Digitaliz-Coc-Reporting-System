@@ -65,19 +65,19 @@ export function exportCandidates(candidates, filename = 'Candidates_Registry') {
  */
 export function downloadBulkTemplate() {
   const headers = [
-    'Registration Date', 'First Name *', 'Middle Name', 'Last Name *', 'Sex *', 'Age',
+    'Registration Date', 'First Name *', 'Middle Name', 'Last Name', 'Sex', 'Age',
     'Occupation', 'Level', 'Region', 'Zone', 'Wereda', 'Mobile No',
     'Name of Institution', 'Department', 'Institution Ownership', 'Training Program',
     'Employment Status', 'Trainer/Completer Type', 'Enterprise Size', 'Assessment Type',
   ];
 
-  // Row 1: hint row showing what's required
+  // Row 1: hint row
   const hint = {
     'Registration Date':     '(optional) YYYY-MM-DD',
     'First Name *':          '(REQUIRED)',
     'Middle Name':           '(optional)',
-    'Last Name *':           '(REQUIRED)',
-    'Sex *':                 '(REQUIRED) Male or Female',
+    'Last Name':             '(optional)',
+    'Sex':                   '(optional) Male or Female',
     'Age':                   '(optional) number',
     'Occupation':            '(optional)',
     'Level':                 '(optional) e.g. Level III',
@@ -85,8 +85,8 @@ export function downloadBulkTemplate() {
     'Zone':                  '(optional)',
     'Wereda':                '(optional)',
     'Mobile No':             '(optional)',
-    'Name of Institution':   '(optional) defaults to SHEWA BIRHAN COLLEGE',
-    'Department':            '(optional) defaults to WEB DEVELOPMENT AND DATABASE ADMINSTRATION',
+    'Name of Institution':   '(optional)',
+    'Department':            '(optional)',
     'Institution Ownership': '(optional) Government / Private / NGO',
     'Training Program':      '(optional) Regular / Extension / Distance',
     'Employment Status':     '(optional) Government / Private Sector / Self Employment / Unemployment',
@@ -100,8 +100,8 @@ export function downloadBulkTemplate() {
     'Registration Date':     new Date().toISOString().slice(0, 10),
     'First Name *':          'ABEBE',
     'Middle Name':           'BEKELE',
-    'Last Name *':           'CHALA',
-    'Sex *':                 'Male',
+    'Last Name':             'CHALA',
+    'Sex':                   'Male',
     'Age':                   '25',
     'Occupation':            'Web Developer',
     'Level':                 'Level III',
