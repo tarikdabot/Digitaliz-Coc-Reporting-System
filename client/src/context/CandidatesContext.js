@@ -69,8 +69,9 @@ export function CandidatesProvider({ children }) {
 
   const bulkCreate = useCallback(async (rows) => {
     const { data } = await api.post('/candidates/bulk', rows);
-    dispatch({ type: 'ADD_CANDIDATES_BULK', payload: data.data });
-    return data;
+    const inserted = data.data || data;
+    dispatch({ type: 'ADD_CANDIDATES_BULK', payload: Array.isArray(inserted) ? inserted : [] });
+    return { inserted: data.inserted ?? (Array.isArray(inserted) ? inserted.length : 0), data: inserted };
   }, []);
 
   const updateCandidate = useCallback(async (id, updates) => {

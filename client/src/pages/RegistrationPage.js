@@ -109,7 +109,8 @@ export default function RegistrationPage() {
           return;
         }
         const result = await bulkCreate(mapped);
-        showToast(`${result.inserted} candidates imported successfully.`);
+        const count = result?.inserted ?? mapped.length;
+        showToast(`${count} candidates imported successfully.`);
         navigate('/students');
       } catch (err) {
         const msg = err.response?.data?.message || err.message || 'Unknown error';
