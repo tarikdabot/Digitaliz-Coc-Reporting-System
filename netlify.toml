@@ -1,6 +1,7 @@
 [build]
-  command = "cd client && npm install && npm run build"
-  publish = "client/build"
+  base    = "client"
+  command = "npm install && npm run build"
+  publish = "build"
 
 [[headers]]
   for = "/*"
