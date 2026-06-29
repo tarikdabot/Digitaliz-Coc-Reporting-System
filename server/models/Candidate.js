@@ -5,8 +5,8 @@ const CandidateSchema = new mongoose.Schema(
     // Personal Info
     firstName:  { type: String, required: true, trim: true },
     middleName: { type: String, trim: true, default: '' },
-    lastName:   { type: String, required: true, trim: true },
-    sex:        { type: String, enum: ['Male', 'Female'], required: true },
+    lastName:   { type: String, trim: true, default: '' },
+    sex:        { type: String, enum: ['Male', 'Female'], default: 'Male' },
     age:        { type: Number },
     occupation: { type: String, trim: true, default: '' },
     occLevel:   { type: String, trim: true, default: '' },

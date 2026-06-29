@@ -155,8 +155,8 @@ export default function RegistrationPage() {
           {sec('Personal Information', 'fa-solid fa-id-card', <>
             {fld('Registration Date', <input type="date" name="regDate" value={form.regDate} onChange={handle} required style={inp()} />)}
             {fld('First Name',  <input type="text" name="firstName"  value={form.firstName}  onChange={handle} required style={inp()} />)}
-            {fld('Middle Name', <input type="text" name="middleName" value={form.middleName} onChange={handle} required style={inp()} />)}
-            {fld('Last Name',   <input type="text" name="lastName"   value={form.lastName}   onChange={handle} required style={inp()} />)}
+            {fld('Middle Name', <input type="text" name="middleName" value={form.middleName} onChange={handle} style={inp()} />)}
+            {fld('Last Name',   <input type="text" name="lastName"   value={form.lastName}   onChange={handle} style={inp()} />)}
             {fld('Sex', sel('sex', [['Male','Male'],['Female','Female']], form.sex))}
             {fld('Age', <input type="number" name="age" value={form.age} onChange={handle} min={1} style={inp()} />)}
             {fld('Occupation', <input type="text" name="occupation" value={form.occupation} onChange={handle} style={inp()} />)}
