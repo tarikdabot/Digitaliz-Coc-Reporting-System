@@ -28,7 +28,7 @@ const DEFAULT_CLASSIFICATION = {
 
 function getSignatureBlock(sigs) {
   return `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:40px;font-size:11px;font-weight:bold;">
-    <div>Head of Registrar Office<br>${sigs.registrar || ""}<br><br>_______________________</div>
+    <div>Head of Registrar Office<br> <br>${sigs.registrar || ""}<br><br>_______________________</div>
     <div>Head of Assessment Center<br><br>${sigs.assessment || ""}<br><br>_______________________</div>
     <div>OCACA Assigned Supervisor<br><br>${sigs.supervisor || ""}<br><br>_______________________</div>
   </div>
