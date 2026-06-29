@@ -61,32 +61,42 @@ export default function RegistrationPage() {
       try {
         const wb = XLSX.read(evt.target.result, { type: 'binary' });
         const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+
         const mapped = rows
-          .filter(r => !String(r['First Name *'] || r['First Name'] || '').startsWith('('))
+          // skip hint/instruction rows — any row where First Name looks like a guide text
+          .filter(r => {
+            const fn = String(r['First Name *'] || r['First Name'] || '').trim();
+            return fn.length > 0 && !fn.startsWith('(') && fn.toUpperCase() !== 'FIRST NAME';
+          })
           .map((r) => ({
-          firstName:  r['First Name *'] || r['First Name'] || '',
-          middleName: r['Middle Name'] || '',
-          lastName:   r['Last Name']   || '',
-          sex:        (String(r['Sex'] || 'Male')).startsWith('F') ? 'Female' : 'Male',
-          age:        r['Age'] || '',
-          occupation: r['Occupation'] || '',
-          occLevel:   r['Level'] || '',
-          regDate:    r['Registration Date'] || '',
-          region:     r['Region'] || '',
-          zone:       r['Zone']   || '',
-          wereda:     r['Wereda'] || '',
-          mobile:     r['Mobile No'] || '',
-          institution:        (r['Name of Institution'] || 'SHEWA BIRHAN COLLEGE').toUpperCase(),
-          institutionAddress: r['Address of Institution'] || '',
-          dept:       r['Department'] || 'WEB DEVELOPMENT AND DATABASE ADMINSTRATION',
-          owner:      r['Institution Ownership'] || 'Private',
-          prog:       r['Training Program'] || 'Regular',
-          emp:        r['Employment Status'] || 'Unemployment',
-          empType:    r['Trainer/Completer Type'] || '',
-          enterpriseSize: r['Enterprise Size'] || '',
-          assessmentType: r['Assessment Type'] || 'First Time',
-          status: 'Registered',
-        }));
+            firstName:  (r['First Name *'] || r['First Name'] || '').toString().trim(),
+            middleName: (r['Middle Name'] || '').toString().trim(),
+            lastName:   (r['Last Name']   || '').toString().trim(),
+            sex:        String(r['Sex'] || 'Male').trim().startsWith('F') ? 'Female' : 'Male',
+            age:        r['Age'] || '',
+            occupation: r['Occupation'] || '',
+            occLevel:   r['Level'] || '',
+            regDate:    r['Registration Date'] ? String(r['Registration Date']).slice(0, 10) : '',
+            region:     r['Region'] || '',
+            zone:       r['Zone']   || '',
+            wereda:     r['Wereda'] || '',
+            mobile:     String(r['Mobile No'] || ''),
+            institution:        ((r['Name of Institution'] || 'SHEWA BIRHAN COLLEGE').toString().toUpperCase()),
+            institutionAddress: r['Address of Institution'] || '',
+            dept:       r['Department'] || 'WEB DEVELOPMENT AND DATABASE ADMINSTRATION',
+            owner:      r['Institution Ownership'] || 'Private',
+            prog:       r['Training Program'] || 'Regular',
+            emp:        r['Employment Status'] || 'Unemployment',
+            empType:    r['Trainer/Completer Type'] || '',
+            enterpriseSize: r['Enterprise Size'] || '',
+            assessmentType: r['Assessment Type'] || 'First Time',
+            status: 'Registered',
+          }));
+
+        if (mapped.length === 0) {
+          showToast('No valid rows found. Make sure "First Name *" column has data and delete the hint row.', 'danger');
+          return;
+        }
         const result = await bulkCreate(mapped);
         showToast(`${result.inserted} candidates imported successfully.`);
         navigate('/students');
