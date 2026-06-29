@@ -60,8 +60,49 @@ export function exportCandidates(candidates, filename = 'Candidates_Registry') {
 }
 
 /**
- * Export department breakdown matrix.
+ * Download a blank Bulk Registration Excel template with all required headers
+ * and one sample row so users know the expected format.
  */
+export function downloadBulkTemplate() {
+  const headers = [
+    'Registration Date', 'First Name', 'Middle Name', 'Last Name', 'Sex', 'Age',
+    'Occupation', 'Level', 'Region', 'Zone', 'Wereda', 'Mobile No',
+    'Name of Institution', 'Department', 'Institution Ownership', 'Training Program',
+    'Employment Status', 'Trainer/Completer Type', 'Enterprise Size', 'Assessment Type',
+  ];
+
+  const sample = [{
+    'Registration Date':     new Date().toISOString().slice(0, 10),
+    'First Name':            'ABEBE',
+    'Middle Name':           'BEKELE',
+    'Last Name':             'CHALA',
+    'Sex':                   'Male',
+    'Age':                   '25',
+    'Occupation':            'Web Developer',
+    'Level':                 'Level III',
+    'Region':                'Amhara',
+    'Zone':                  'North Shewa',
+    'Wereda':                'Efratana Gidem',
+    'Mobile No':             '0911234567',
+    'Name of Institution':   'SHEWA BIRHAN COLLEGE',
+    'Department':            'WEB DEVELOPMENT AND DATABASE ADMINSTRATION',
+    'Institution Ownership': 'Private',
+    'Training Program':      'Regular',
+    'Employment Status':     'Unemployment',
+    'Trainer/Completer Type':'',
+    'Enterprise Size':       '',
+    'Assessment Type':       'First Time',
+  }];
+
+  const ws = XLSX.utils.json_to_sheet(sample, { header: headers });
+
+  // Style header row width
+  ws['!cols'] = headers.map(() => ({ wch: 26 }));
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Bulk Registration');
+  XLSX.writeFile(wb, 'Bulk_Registration_Template.xlsx');
+}
 export function exportDeptMatrix(deptMatrix) {
   exportToExcel(
     deptMatrix.map((r) => ({

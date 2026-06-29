@@ -3,6 +3,7 @@ import { useCandidates } from '../context/CandidatesContext';
 import { useSettings } from '../context/SettingsContext';
 import { showToast } from '../utils/toast';
 import * as XLSX from 'xlsx';
+import { downloadBulkTemplate } from '../utils/excelExport';
 import { useNavigate } from 'react-router-dom';
 
 const fld = (label, children, full = false) => (
@@ -168,7 +169,30 @@ export default function RegistrationPage() {
 
       {tab === 'bulk' && (
         <div>
-          <p style={{ color: '#64748b', fontSize: 14, marginBottom: 16 }}>
+          {/* Download template button */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 20,
+            background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '14px 18px' }}>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#166534', marginBottom: 2 }}>
+                <i className="fa-solid fa-file-arrow-down" style={{ marginRight: 7 }} />
+                Download Template First
+              </div>
+              <div style={{ fontSize: 12, color: '#4ade80' }}>
+                Fill in the template with your candidates data, then upload it below.
+              </div>
+            </div>
+            <button onClick={downloadBulkTemplate}
+              style={{ background: 'linear-gradient(135deg,#16a34a,#15803d)', color: '#fff', border: 'none',
+                padding: '10px 20px', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 10px #16a34a33',
+                transition: 'transform .15s, box-shadow .15s', whiteSpace: 'nowrap' }}
+              onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 20px #16a34a44'; }}
+              onMouseOut={e =>  { e.currentTarget.style.transform = 'none';             e.currentTarget.style.boxShadow = '0 4px 10px #16a34a33'; }}>
+              <i className="fa-solid fa-download" /> Download Excel Template
+            </button>
+          </div>
+
+          <p style={{ color: '#64748b', fontSize: 13, marginBottom: 16, lineHeight: 1.6 }}>
             <strong>Required Headers:</strong> Registration Date | First Name | Middle Name | Last Name | Sex | Age | Occupation | Level | Region | Zone | Wereda | Mobile No | Name of Institution | Department | Institution Ownership | Training Program | Employment Status | Trainer/Completer Type | Enterprise Size | Assessment Type
           </p>
           <label style={{ border: '2px dashed #cbd5e1', borderRadius: 12, padding: 40, textAlign: 'center', background: '#f8fafc', cursor: 'pointer', display: 'block', transition: 'all .2s' }}
