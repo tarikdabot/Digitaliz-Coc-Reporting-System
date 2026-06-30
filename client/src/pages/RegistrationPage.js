@@ -70,14 +70,51 @@ export default function RegistrationPage() {
           return '';
         };
 
+        // Normalize ownership: PRIVATE→Private, GOVERNMENT→Government, NGO→NGO
+        const normalizeOwner = (v) => {
+          const s = v.toUpperCase();
+          if (s.includes('GOV')) return 'Government';
+          if (s.includes('NGO')) return 'NGO';
+          return 'Private';
+        };
+
+        // Normalize program: REGULAR→Regular, EVENING/EVINING→Extension, DISTANCE→Distance
+        const normalizeProg = (v) => {
+          const s = v.toUpperCase();
+          if (s.includes('DIST')) return 'Distance';
+          if (s.includes('EXT') || s.includes('EVEN') || s.includes('EVIN')) return 'Extension';
+          return 'Regular';
+        };
+
+        // Normalize employment
+        const normalizeEmp = (v) => {
+          const s = v.toUpperCase();
+          if (s.includes('SELF')) return 'Self Employment';
+          if (s.includes('PRIV')) return 'Private Sector';
+          if (s.includes('GOV')) return 'Government';
+          return 'Unemployment';
+        };
+
+        // Normalize assessment type
+        const normalizeAssessment = (v) => {
+          const s = v.toUpperCase();
+          if (s.includes('RE') || s.includes('2ND') || s.includes('SECOND')) return 'Re-assessment';
+          return 'First Time';
+        };
+
+        // Normalize sex: F/FEMALE→Female, M/MALE→Male
+        const normalizeSex = (v) => {
+          const s = v.toUpperCase().trim();
+          return s === 'F' || s.startsWith('FEM') ? 'Female' : 'Male';
+        };
+
         const mapped = rows
           .filter(r => {
             const fn = get(r, 'First Name *', 'First Name', 'FIRST NAME', 'firstName');
             return fn.length > 0 && !fn.startsWith('(');
           })
           .map((r) => {
-            const sexRaw = get(r, 'Sex *', 'Sex', 'SEX').toUpperCase();
-            const sex = sexRaw === 'F' || sexRaw.startsWith('FEM') ? 'Female' : 'Male';
+            const sex = normalizeSex(get(r, 'Sex *', 'Sex', 'SEX'));
             return {
               firstName:  get(r, 'First Name *', 'First Name', 'FIRST NAME'),
               middleName: get(r, 'Middle Name', 'MIDDLE NAME'),
@@ -94,12 +131,12 @@ export default function RegistrationPage() {
               institution: (get(r, 'Name of Institution', 'Institution', 'INSTITUTION') || 'SHEWA BIRHAN COLLEGE').toUpperCase(),
               institutionAddress: get(r, 'Address of Institution'),
               dept:        get(r, 'Department', 'DEPARTMENT', 'Dept') || 'WEB DEVELOPMENT AND DATABASE ADMINSTRATION',
-              owner:       get(r, 'Institution Ownership', 'Ownership') || 'Private',
-              prog:        get(r, 'Training Program', 'Program') || 'Regular',
-              emp:         get(r, 'Employment Status', 'Employment') || 'Unemployment',
+              owner:       normalizeOwner(get(r, 'Institution Ownership', 'Ownership') || 'Private'),
+              prog:        normalizeProg(get(r, 'Training Program', 'Program') || 'Regular'),
+              emp:         normalizeEmp(get(r, 'Employment Status', 'Employment') || 'Unemployment'),
               empType:     get(r, 'Trainer/Completer Type', 'Emp Type'),
               enterpriseSize: get(r, 'Enterprise Size'),
-              assessmentType: get(r, 'Assessment Type') || 'First Time',
+              assessmentType: normalizeAssessment(get(r, 'Assessment Type') || 'First Time'),
               status: 'Registered',
             };
           });
